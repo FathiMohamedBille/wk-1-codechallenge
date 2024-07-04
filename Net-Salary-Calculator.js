@@ -1,55 +1,55 @@
-//Calculate NHIF Deductions, NSSF Deductions, gross salary, and net salary. 
-function calculateIncomeTax(monthlySalary, benefits = 0) {
-    const grossSalary = monthlySalary + benefits;
+const readline = require('readline');
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+ // Function to calculate net salary
+ function calculateNetSalary() { 
+rl.question("Enter the basic salary: ", function(input) { 
+let basicSalary = parseFloat(input); 
+// Constants for tax rates and deductions 
+const kraRates = [ { min: 0, max: 24000, rate: 0.1 }, 
+{ min: 24001, max: 32333, rate: 0.25 }, 
+{ min: 32334, max: 500000, rate: 0.3 },
+{ min: 500001, max: 800000, rate: 0.325 }, 
+{ min: 800001, max: Infinity, rate: 0.35 } ];
 
-    function KraDeduction() {
-        let kraDeduction;
-        if (grossSalary <= 24000) {
-            kraDeduction = grossSalary * 0.1;
-        } else if (grossSalary > 24000 && grossSalary <= 32333) {
-            kraDeduction = grossSalary * 0.25;
-        } else if (grossSalary > 32333 && grossSalary <= 500000) {
-            kraDeduction = grossSalary * 0.3;
-        } else if (grossSalary > 500000 && grossSalary <= 800000) {
-            kraDeduction = grossSalary * 0.325;
-        } else {
-            kraDeduction = grossSalary * 0.35;
-        }
-        return kraDeduction;
-    }
-    function nhifDedaction(){
-        
-        let nhifDedaction=0;
-        if (grossSalary<=40000){
-            nhifDedaction=1000;
-        }else if (grossSalary>40000&&grossSalary<=45000)
-        {nhifDedaction=1100;}else if (grossSalary>45000&&grossSalary<=70000){
-            nhifDedaction=1300;
-        }
-            else if (grossSalary>70000&&grossSalary<=90000){
-                nhifDedaction=1600;
-            }else if (grossSalary>90000&&grossSalary<=100000){
-                nhifDedaction=1700;
-            }else{
-                nhifDedaction=1900;}
-        return nhifDedaction;
-    }
-    function
-    calculateNssfDeduction() {
-        const NssfRate = 0.06;
-        const maxNssf = 1800;
-        return Math.min(grossSalary* NssfRate,maxNssf);
-    }
-
-    const netSalary = grossSalary -(kraDeduction+nhifDedaction+nssfDeduction);
-    return {
-        grossSalary
-        kraDeduction
-        nhifDedaction
-        nssfDeduction
-        netSalary
-    };
+ const nhifRates = [ { min: 0, max: 5999, deduction: 150 },
+ { min: 6000, max: 7999, deduction: 300 },
+ { min: 8000, max: 11999, deduction: 400 },
+ { min: 12000, max: 14999, deduction: 500 },
+ { min: 15000, max: 19999, deduction: 600 }, 
+ { min: 20000, max: 24999, deduction: 750 },
+ { min: 25000, max: 29999, deduction: 850 }, 
+ { min: 30000, max: 34999, deduction: 900 },
+ { min: 35000, max: 39999, deduction: 950 },
+ { min: 40000, max: Infinity, deduction: 1000 } ]; 
+ const nssfTier1Limit = 7000; const nssfTier2Limit = 36000;
+ // Calculate PAYE tax 
+ let payeTax = calculatePAYE(basicSalary, kraRates);
+  // Calculate NHIF deduction 
+  let nhifDeduction = calculateNHIF(basicSalary, nhifRates);
+   // Calculate NSSF deduction
+ let nssfDeduction = calculateNSSF(basicSalary, nssfTier1Limit, nssfTier2Limit);
+  // Calculate gross salary
+ grossSalary = basicSalary;
+  // Calculate net salary 
+let netSalary = basicSalary - payeTax - nhifDeduction - nssfDeduction; 
+// Output the calculated net salary 
+console.log(`Net Salary: ${netSalary.toFixed(2)}`);
+ // Close the readline interface
+ rl.close(); }); 
 }
-
-const result=calculateIncomeTax(40000, 2500);
-
+  // Function to calculate PAYE tax
+ function calculatePAYE(salary, rates) {
+ let tax = 0; for (let i = 0; i < rates.length; i++) {
+ if (salary > rates[i].min) {
+ let taxableAmount = Math.min(salary, rates[i].max) - rates[i].min; tax += taxableAmount * rates[i].rate; } } return tax; }
+ function calculateNHIF(salary, rates) { 
+let deduction = 0; for (let i = 0; i < rates.length; i++) { 
+if (salary >= rates[i].min && salary <= rates[i].max) {
+ deduction = rates[i].deduction; break; } }
+  return deduction; }
+   // Function to calculate NSSF deduction
+ function calculateNSSF(salary, tier1Limit, tier2Limit) {
+ let nssfTier1 = Math.min(salary, tier1Limit) * 0.06; let nssfTier2 = Math.max(0, salary - tier1Limit) * 0.06;
+  return nssfTier1 + nssfTier2; }
+ // Calling the function to start calculating net salary 
+ calculateNetSalary();
